@@ -101,19 +101,40 @@
   transform: scale(1.05);
 }
 
-/* Focus ring styles */
+/* Focus ring styles - converted from @apply to regular CSS */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400;
+  outline: none;
 }
 
-/* Button animations */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+}
+
+.dark .focus-ring:focus {
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.5);
+}
+
+/* Button animations - converted from @apply to regular CSS */
 .btn-hover {
-  @apply transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+  transition: all 0.3s ease;
+  transform: translateZ(0);
 }
 
-/* Card hover effects */
+.btn-hover:hover {
+  transform: scale(1.05) translateZ(0);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Card hover effects - converted from @apply to regular CSS */
 .card-hover {
-  @apply transition-all duration-300 transform hover:scale-[1.01] hover:shadow-lg;
+  transition: all 0.3s ease;
+  transform: translateZ(0);
+}
+
+.card-hover:hover {
+  transform: scale(1.01) translateZ(0);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Icon animations */
@@ -130,9 +151,10 @@
   }
 }
 
-/* Backdrop blur transitions */
+/* Backdrop blur transitions - converted from @apply to regular CSS */
 .backdrop-blur-transition {
-  @apply transition-all duration-300 backdrop-blur-sm;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
 }
 
 /* Status badge animations */

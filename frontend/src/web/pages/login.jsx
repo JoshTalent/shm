@@ -1,48 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import logoWhite from '../../assets/logo-white.jpg';
-import logoBlack from '../../assets/logo-black.jpg';
+import { Link, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import {
-  SunIcon,
-  MoonIcon,
-  UserIcon,
-  KeyIcon,
-  UserGroupIcon,
-  ArrowRightIcon
+import logoWhite from '../../assets/logo-white.jpg';
+import { 
+  EyeIcon, 
+  EyeSlashIcon,
+  MoonIcon
 } from '@heroicons/react/24/outline';
 
 const Login = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    userType: 'doctor', // Default to doctor
-  });
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Check system preference for dark mode
   useEffect(() => {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
+    // Check if user is already logged in
+    const token = Cookies.get('token');
+    if (token) {
+      navigate('/dashboard');
     }
-  }, []);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-    document.body.classList.toggle('dark-mode');
-  };
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError(''); // Clear error when user starts typing
   };
 
   const handleSubmit = async (e) => {
@@ -51,213 +39,164 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_username: formData.username,
-          user_password: formData.password,
-          user_usertype: formData.userType,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      // Store the token in localStorage
-      Cookies.set('token', data.token);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Redirect to dashboard
-      navigate('/');
-    } catch (err) {
-      setError(err.message || 'An error occurred during login');
+      // For demo purposes, accept any email/password
+      if (formData.email && formData.password) {
+        Cookies.set('token', 'demo-token', { expires: 7 });
+        navigate('/dashboard');
+      } else {
+        setError('Please enter both email and password');
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={`min-h-screen transition-all duration-500 ease-in-out ${
-      isDarkMode 
-        ? 'dark bg-gray-900 text-gray-100' 
-        : 'bg-gray-50 text-gray-900'
-    }`}>
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <div className="relative min-h-screen">
-        {/* Enhanced gradient overlay with animation */}
-        <div className={`absolute inset-0 transition-opacity duration-500 ${
-          isDarkMode
-            ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 opacity-50'
-            : 'bg-gradient-to-br from-blue-50 via-white to-gray-50 opacity-30'
-        }`}>
+        {/* Enhanced gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-50 opacity-30">
           <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         </div>
 
-        {/* Content wrapper with fade-in animation */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4 animate-fadeIn">
-          {/* Enhanced dark mode toggle */}
+        {/* Content wrapper */}
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+          {/* Dark Mode Toggle - Fixed Position */}
           <button
-            onClick={toggleDarkMode}
-            className={`absolute top-4 right-4 p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
-              isDarkMode
-                ? 'text-gray-400 hover:bg-gray-700 hover:text-white'
-                : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'
-            }`}
-            title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            className="fixed top-4 right-4 p-2 rounded-lg transition-all duration-300 group text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            title="Switch to light mode"
           >
-            {isDarkMode ? (
-              <SunIcon className="w-6 h-6 transform transition-transform hover:rotate-90" />
-            ) : (
-              <MoonIcon className="w-6 h-6 transform transition-transform hover:-rotate-90" />
-            )}
+            <MoonIcon className="w-6 h-6 transform transition-transform group-hover:scale-110 group-hover:-rotate-12" />
           </button>
 
-          {/* Login Form with enhanced animations */}
-          <div className={`w-full max-w-md p-8 rounded-lg shadow-lg transition-all duration-300 transform hover:shadow-xl ${
-            isDarkMode ? 'bg-gray-800/50 backdrop-blur-sm' : 'bg-white/80 backdrop-blur-sm'
-          }`}>
-            {/* Animated logo */}
-            <div className="flex justify-center mb-8 transform transition-all duration-300 hover:scale-105">
-              <img 
-                src={isDarkMode ? logoBlack : logoWhite}
-                alt="R Health Care Logo"
-                className="h-16 md:h-20 filter drop-shadow-lg"
-              />
-            </div>
-
-            <h2 className={`text-2xl font-bold text-center mb-6 transition-colors duration-300 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>
-              Welcome Back
-            </h2>
-
-            {error && (
-              <div className="mb-4 p-3 rounded bg-red-100 border border-red-400 text-red-700 animate-shake">
-                {error}
+          {/* Login Card */}
+          <div className="w-full max-w-md">
+            <div className="bg-white rounded-lg shadow-lg p-8 transition-all duration-300 transform hover:scale-[1.01]">
+              {/* Logo and Header */}
+              <div className="text-center mb-8">
+                <img 
+                  src={logoWhite} 
+                  alt="R Health Care Logo" 
+                  className="h-16 mx-auto mb-4 transition-all duration-300 hover:opacity-80"
+                />
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Welcome Back
+                </h1>
+                <p className="text-gray-600 mt-2">
+                  Sign in to your account to continue
+                </p>
               </div>
-            )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label 
-                    htmlFor="userType"
-                    className={`flex items-center gap-2 text-sm font-medium mb-2 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    <UserGroupIcon className="w-5 h-5" />
-                    User Type
-                  </label>
-                  <select
-                    id="userType"
-                    name="userType"
-                    value={formData.userType}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 rounded-lg border transition-all duration-300 focus:ring-2 focus:ring-offset-2 outline-none ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white focus:ring-indigo-500'
-                        : 'bg-white border-gray-300 text-gray-900 focus:ring-indigo-500'
-                    }`}
-                    required
-                  >
-                    <option value="doctor">Doctor</option>
-                    <option value="receptionist">Receptionist</option>
-                  </select>
+              {/* Error Message */}
+              {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                  {error}
                 </div>
+              )}
 
+              {/* Login Form */}
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label 
-                    htmlFor="username"
-                    className={`flex items-center gap-2 text-sm font-medium mb-2 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    <UserIcon className="w-5 h-5" />
-                    Username
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
                   </label>
                   <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={formData.username}
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 rounded-lg border transition-all duration-300 focus:ring-2 focus:ring-offset-2 outline-none ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white focus:ring-indigo-500'
-                        : 'bg-white border-gray-300 text-gray-900 focus:ring-indigo-500'
-                    }`}
                     required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300"
+                    placeholder="Enter your email"
                   />
                 </div>
 
                 <div>
-                  <label 
-                    htmlFor="password"
-                    className={`flex items-center gap-2 text-sm font-medium mb-2 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    <KeyIcon className="w-5 h-5" />
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                     Password
                   </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 rounded-lg border transition-all duration-300 focus:ring-2 focus:ring-offset-2 outline-none ${
-                      isDarkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white focus:ring-indigo-500'
-                        : 'bg-white border-gray-300 text-gray-900 focus:ring-indigo-500'
-                    }`}
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300"
+                      placeholder="Enter your password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-300"
+                    >
+                      {showPassword ? (
+                        <EyeSlashIcon className="w-5 h-5" />
+                      ) : (
+                        <EyeIcon className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input
+                      id="remember-me"
+                      name="remember-me"
+                      type="checkbox"
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                      Remember me
+                    </label>
+                  </div>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-indigo-600 hover:text-indigo-500 transition-colors duration-300"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                >
+                  {isLoading ? 'Signing in...' : 'Sign in'}
+                </button>
+              </form>
+
+              {/* Divider */}
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">Don't have an account?</span>
+                  </div>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-all duration-300 transform hover:translate-y-[-1px] flex items-center justify-center gap-2 ${
-                  isLoading
-                    ? 'bg-indigo-400 cursor-not-allowed'
-                    : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg'
-                }`}
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Logging in...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Login</span>
-                    <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </button>
-
-              <div className="text-center mt-6">
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Don't have an account?{' '}
-                </span>
+              {/* Register Link */}
+              <div className="mt-6 text-center">
                 <Link
                   to="/register"
-                  className="text-sm text-indigo-600 hover:text-indigo-500 font-medium transition-colors duration-300 hover:underline"
+                  className="text-sm text-indigo-600 hover:text-indigo-500 transition-colors duration-300"
                 >
-                  Register here
+                  Create a new account
                 </Link>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>
